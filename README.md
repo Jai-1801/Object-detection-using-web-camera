@@ -1,49 +1,47 @@
-## Object-Detection-Using-WebCamera
-## AIM:
-To write a Python code to Object Detection Using Webcam.
+# Object Detection Using Webcam 📸
 
-## PROCEDURE:
-STEP-1 Load the pre-trained YOLOv4 network (.weights and .cfg) using cv2.dnn.readNet().
+## AIM
+To write a Python code to perform object detection using a webcam.
 
-STEP-2 Read class labels (COCO dataset) from the coco.names file.
+---
+## PROCEDURE
 
-STEP-3 Get the output layer names from the YOLO network using getLayerNames() and getUnconnectedOutLayers().
+1.  **Load Network:** Load the pre-trained YOLOv4 network (weights and configuration files) using `cv2.dnn.readNet()`.
+2.  **Load Class Labels:** Read the class labels from the `coco.names` file, which correspond to the objects the YOLOv4 model can detect.
+3.  **Get Output Layers:** Identify the output layers of the YOLO network. These are needed to get the detection results after a forward pass.
+4.  **Initialize Webcam:** Start video capture from the default webcam using `cv2.VideoCapture(0)`.
+5.  **Process Frames:** For each frame captured from the webcam:
+    * Convert the frame into a format suitable for YOLO (a "blob") using `cv2.dnn.blobFromImage()`.
+    * Set this blob as the input to the network (`net.setInput()`).
+    * Perform a forward pass through the network to get the raw detection data (`net.forward()`).
+    * Parse this raw data to extract bounding box coordinates, confidence scores, and class IDs for all detected objects.
+6.  **Apply Non-Max Suppression (NMS):** Use NMS to filter out weak and overlapping bounding boxes, keeping only the most relevant ones.
+7.  **Draw Detections:** For each valid detection, draw a bounding box around the object and label it with the class name and confidence score using `cv2.rectangle()` and `cv2.putText()`.
+8.  **Display Output:** Show the processed frame (with detections) in an OpenCV window using `cv2.imshow()`.
+9.  **Exit Condition:** Allow the user to quit the application by pressing the 'q' key.
+10. **Cleanup:** After the loop finishes (or is exited), release the webcam resource (`cap.release()`) and close all OpenCV display windows (`cv2.destroyAllWindows()`).
 
-STEP-4 Start webcam video capture using cv2.VideoCapture(0).
+---
+## PROGRAM
 
-STEP-5 Process each frame:
-Convert the frame to a YOLO-compatible input using cv2.dnn.blobFromImage(). Pass the blob into the network (net.setInput()) and run forward pass to get detections (net.forward()). Parse the output to extract bounding boxes, confidence scores, and class IDs for detected objects. 
-
-STEP-6 Use NMS to remove overlapping bounding boxes and retain the best ones.
-
-STEP-7 Draw bounding boxes and labels on detected objects using cv2.rectangle() and cv2.putText().
-
-STEP-8 Show the processed video frames with object detections using cv2.imshow().
-
-STEP-9 Exit the loop if the 'q' key is pressed.
-
-STEP-10 Release the video capture and close any OpenCV windows (cap.release() and cv2.destroyAllWindows()).
-
-## PROGRAM:
-
-'''
-### --- 1. Import necessary libraries ---
+```python
+# --- 1. Import necessary libraries ---
 import os
-import cv2 # OpenCV for computer vision tasks
-import numpy as np # NumPy for numerical operations
-import urllib.request # For downloading files
+import cv2  # OpenCV for computer vision tasks
+import numpy as np  # NumPy for numerical operations
+import urllib.request  # For downloading files
 
-### --- 2. Define paths for YOLOv4 files ---
-cfg_url = "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov4.cfg"
-weights_url = "https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights"
-names_url = "https://raw.githubusercontent.com/AlexeyAB/darknet/master/data/coco.names"
+# --- 2. Define paths for YOLOv4 files ---
+cfg_url = "[https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov4.cfg](https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov4.cfg)"
+weights_url = "[https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights](https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights)"
+names_url = "[https://raw.githubusercontent.com/AlexeyAB/darknet/master/data/coco.names](https://raw.githubusercontent.com/AlexeyAB/darknet/master/data/coco.names)"
 
-### Local paths (files will be in the same directory as the script)
+# Local paths (files will be in the same directory as the script)
 cfg_path = "yolov4.cfg"
 weights_path = "yolov4.weights"
 names_path = "coco.names"
 
-### --- 3. Download YOLOv4 configuration and weights files if they don't exist ---
+# --- 3. Download YOLOv4 configuration and weights files if they don't exist ---
 def download_file_if_not_exists(url, file_path):
     if not os.path.exists(file_path):
         print(f"Downloading {url} to {file_path}...")
@@ -62,7 +60,7 @@ download_file_if_not_exists(cfg_url, cfg_path)
 download_file_if_not_exists(weights_url, weights_path)
 download_file_if_not_exists(names_url, names_path)
 
-### --- 4. Load YOLOv4 network ---
+# --- 4. Load YOLOv4 network ---
 print("Loading YOLOv4 network...")
 net = cv2.dnn.readNet(weights_path, cfg_path)
 if net.empty():
@@ -70,7 +68,7 @@ if net.empty():
     raise SystemExit("YOLOv4 network loading failed. Exiting.")
 print("YOLOv4 network loaded.")
 
-### --- 5. Load COCO class labels ---
+# --- 5. Load COCO class labels ---
 print("Loading COCO class labels...")
 try:
     with open(names_path, "r") as f:
@@ -80,7 +78,7 @@ except FileNotFoundError:
     raise SystemExit("COCO names file missing. Exiting.")
 print(f"COCO class labels loaded ({len(classes)} classes).")
 
-### --- 6. Get output layer names ---
+# --- 6. Get output layer names ---
 layer_names = net.getLayerNames()
 try:
     # Attempt for newer OpenCV versions (net.getUnconnectedOutLayers() returns 1D array)
@@ -90,15 +88,15 @@ except TypeError:
     output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 print("Output layers identified.")
 
-### --- 7. Initialize Webcam ---
+# --- 7. Initialize Webcam ---
 print("Initializing webcam...")
-cap = cv2.VideoCapture(0) # 0 is usually the default webcam
+cap = cv2.VideoCapture(0)  # 0 is usually the default webcam
 if not cap.isOpened():
     print("Error: Could not open webcam.")
     raise SystemExit("Webcam initialization failed. Exiting.")
 print("Webcam initialized.")
 
-### --- 8. Main Loop for Object Detection ---
+# --- 8. Main Loop for Object Detection ---
 print("\n--- Starting Real-Time Object Detection (Press 'q' to quit) ---")
 
 try:
@@ -114,7 +112,7 @@ try:
 
         # Prepare the image for YOLOv4
         # Input size (416,416) is common for YOLOv4
-        blob = cv2.dnn.blobFromImage(frame, 1/255.0, (416, 416), swapRB=True, crop=False)
+        blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (416, 416), swapRB=True, crop=False)
         net.setInput(blob)
 
         # Get YOLO output
@@ -128,10 +126,10 @@ try:
         # Process outputs
         for output in outputs:
             for detection in output:
-                scores = detection[5:] # Class scores start from 6th element
+                scores = detection[5:]  # Class scores start from 6th element
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
-                if confidence > 0.5: # Confidence threshold (e.g., 50%)
+                if confidence > 0.5:  # Confidence threshold (e.g., 50%)
                     # Object detected
                     # YOLO returns center (x,y), width, and height relative to image size
                     center_x = int(detection[0] * width)
@@ -169,7 +167,7 @@ try:
         cv2.imshow("Real-Time Object Detection", frame)
 
         # Break the loop if 'q' is pressed
-        key = cv2.waitKey(1) & 0xFF # waitKey(1) means 1ms delay
+        key = cv2.waitKey(1) & 0xFF  # waitKey(1) means 1ms delay
         if key == ord('q'):
             print("Quitting...")
             break
@@ -183,18 +181,16 @@ except Exception as e:
 
 finally:
     # Release the webcam and destroy all OpenCV windows
-    if 'cap' in locals() and cap.isOpened(): # Check if cap was initialized
+    if 'cap' in locals() and cap.isOpened():  # Check if cap was initialized
         cap.release()
         print("Webcam released.")
     cv2.destroyAllWindows()
     print("OpenCV windows destroyed.")
     print("\nDetection process finished or stopped.")
-'''
 
-## OUTPUT:
-![download](https://github.com/user-attachments/assets/0b9df769-b6fd-4131-9dd4-19324e1c1273)
+```
+## OUTPUT
+![download](https://github.com/user-attachments/assets/1ad2dc24-6891-4c78-b0d5-43cc54f1b2c9)
 
-## RESULT:
-Thus, the Python Program to detect object using web camera as been successfully executed.
-
-
+## RESULT
+Thus, the Python program to detect objects using a webcam has been successfully executed.
