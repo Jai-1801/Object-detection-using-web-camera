@@ -25,6 +25,7 @@ STEP-9 Exit the loop if the 'q' key is pressed.
 STEP-10 Release the video capture and close any OpenCV windows (cap.release() and cv2.destroyAllWindows()).
 
 ## PROGRAM:
+
 '''
 ### --- 1. Import necessary libraries ---
 import os
